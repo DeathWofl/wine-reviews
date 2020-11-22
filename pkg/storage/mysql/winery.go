@@ -17,10 +17,10 @@ func (s *WineryService) Winery(id uint) (*pkg.Winery, error) {
 }
 
 func (s *WineryService) Winerys() []*pkg.Winery {
-	var Winerys []*pkg.Winery
+	var winerys []*pkg.Winery
 
-	s.DB.Find(Winerys)
-	return Winerys
+	s.DB.Find(winerys)
+	return winerys
 }
 
 func (s *WineryService) CreateWinery(w *pkg.Winery) error {
