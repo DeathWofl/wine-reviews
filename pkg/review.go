@@ -1,11 +1,11 @@
 package pkg
 
 type Review struct {
-	ID    string `json:"id"`
-	Wine  *Wine  `json:"wine"`
-	User  *User  `json:"user"`
-	Score int    `json:"score"`
-	Text  string `json:"text"`
+	ID    uint
+	Wine  *Wine
+	User  *User
+	Score int
+	Text  string
 }
 
 type ReviewService interface {

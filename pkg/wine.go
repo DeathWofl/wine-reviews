@@ -1,10 +1,10 @@
 package pkg
 
 type Wine struct {
-	ID       string  `json:"id"`
-	Name     string  `json:"name"`
-	ShortDes string  `json:"shortDes"`
-	Winery   *Winery `json:"Winery"`
+	ID       uint
+	Name     string
+	ShortDes string
+	Winery   *Winery
 }
 
 type WineService interface {

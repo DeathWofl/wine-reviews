@@ -1,16 +1,20 @@
 package pkg
 
+import (
+	"gorm.io/gorm"
+)
+
 type Winery struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Location string `json:"location"`
-	Starts   *int   `json:"starts"`
+	gorm.Model
+	Name     string
+	Location string
+	Starts   *int
 }
 
 type WineryService interface {
-	Winery(id string) (*Winery, error)
-	Winerys() []*Winery
+	Winery(id uint) (*Winery, error)
+	Winerys() *[]Winery
 	CreateWinery(w *Winery) error
-	DeleteWinery(id string) error
-	UpdateWinery(id string, w *Winery) error
+	DeleteWinery(id uint) error
+	UpdateWinery(id uint, w *Winery) error
 }
