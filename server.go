@@ -19,6 +19,18 @@ func main() {
 		port = defaultPort
 	}
 
+	// var migrate *string
+
+	// flag.StringVar(migrate, "migrate", "no", "Genera la migracion de la base de datos.")
+
+	// flag.Parse()
+
+	// if migrate == "yes" {
+	// 	fmt.Println("Comenzo la Migracion...")
+	// 	Mysql.MigrateModels()
+	// 	fmt.Println("Termino la Migracion...")
+	// }
+
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
