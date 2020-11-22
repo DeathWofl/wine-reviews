@@ -1,0 +1,71 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Wine {
+  id: ID!
+  name: String!
+  shortDes: String!
+  Winery: Winery!
+}
+
+type Winery {
+  id: ID!
+  name: String!
+  location: String!
+  starts: Int
+}
+
+type Review {
+  id: ID!
+  wine: Wine!
+  user: User!
+  score: Int!
+  text: String!
+}
+
+type User {
+  id: ID!
+  username: String!
+  password: String!
+  email: String!
+}
+
+type Query {
+  reviews: [Review!]!
+}
+
+input NewWine {
+ name: String!
+ shortDes: String! 
+}
+
+input NewUser {
+  username: String!
+  password: String!
+  email: String!
+}
+
+input NewWinery {
+  name: String!
+  location: String!
+  starts: Int
+}
+
+input NewReview {
+  id: ID!
+  score: Int!
+  text: String!
+}
+
+input NewTodo {
+  text: String!
+  userId: String!
+}
+
+type Mutation {
+  createUser(input: NewUser!): User!
+  createWinery(input: NewWinery!): Winery!
+  createReview(input: NewReview!): Review!
+  createWine(input: NewWine!): Wine!
+}
