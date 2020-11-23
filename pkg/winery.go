@@ -8,7 +8,7 @@ type Winery struct {
 	gorm.Model
 	Name     string
 	Location string
-	Starts   *int
+	Stars    *int
 }
 
 type WineryService interface {

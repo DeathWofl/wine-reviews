@@ -1,7 +1,11 @@
 package pkg
 
+import (
+	"gorm.io/gorm"
+)
+
 type Review struct {
-	ID    uint
+	gorm.Model
 	Wine  *Wine
 	User  *User
 	Score int

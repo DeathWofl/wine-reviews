@@ -1,7 +1,11 @@
 package pkg
 
+import (
+	"gorm.io/gorm"
+)
+
 type User struct {
-	ID       uint
+	gorm.Model
 	Username string
 	Password string
 	Email    string

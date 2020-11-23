@@ -1,7 +1,11 @@
 package pkg
 
+import (
+	"gorm.io/gorm"
+)
+
 type Wine struct {
-	ID       uint
+	gorm.Model
 	Name     string
 	ShortDes string
 	Winery   *Winery
