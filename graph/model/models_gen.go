@@ -27,7 +27,7 @@ type NewWine struct {
 type NewWinery struct {
 	Name     string `json:"name"`
 	Location string `json:"location"`
-	Starts   *int   `json:"starts"`
+	Stars    *int   `json:"stars"`
 }
 
 type Review struct {
@@ -56,5 +56,5 @@ type Winery struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Location string `json:"location"`
-	Starts   *int   `json:"starts"`
+	Stars    *int   `json:"stars"`
 }

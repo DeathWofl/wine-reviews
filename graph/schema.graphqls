@@ -13,7 +13,7 @@ type Winery {
   id: ID!
   name: String!
   location: String!
-  starts: Int
+  stars: Int
 }
 
 type Review {
@@ -49,7 +49,7 @@ input NewUser {
 input NewWinery {
   name: String!
   location: String!
-  starts: Int
+  stars: Int
 }
 
 input NewReview {

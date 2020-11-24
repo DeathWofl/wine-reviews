@@ -6,10 +6,10 @@ import (
 
 type Review struct {
 	gorm.Model
-	Wine  *Wine
-	User  *User
-	Score int
-	Text  string
+	WineID uint
+	UserID uint
+	Score  int
+	Text   string
 }
 
 type ReviewService interface {

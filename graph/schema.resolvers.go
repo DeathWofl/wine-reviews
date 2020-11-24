@@ -9,19 +9,32 @@ import (
 
 	"github.com/deathwofl/wine-reviews/graph/generated"
 	"github.com/deathwofl/wine-reviews/graph/model"
+	"github.com/deathwofl/wine-reviews/pkg"
+	storage "github.com/deathwofl/wine-reviews/pkg/storage/mysql"
 )
+
+var Users storage.UserService
+var Wines storage.WineService
+var Winerys storage.WineryService
+var Reviews storage.ReviewService
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWinery) (*model.Winery, error) {
-	var winery model.Winery
+	var winery pkg.Winery
 	winery.Name = input.Name
 	winery.Location = input.Location
-	winery.Starts = input.Starts
+	winery.Stars = input.Stars
 
-	return &winery, nil
+	Winerys.CreateWinery(&winery)
+
+	return &model.Winery{
+		Name:     winery.Name,
+		Location: winery.Location,
+		Stars:    winery.Stars,
+	}, nil
 }
 
 func (r *mutationResolver) CreateReview(ctx context.Context, input model.NewReview) (*model.Review, error) {
@@ -44,7 +57,7 @@ func (r *queryResolver) Reviews(ctx context.Context) ([]*model.Review, error) {
 			Winery: &model.Winery{
 				Name:     "Le Caset White",
 				Location: "Spain, Costuella",
-				Starts:   star,
+				Stars:    star,
 			},
 		},
 		Text:  "Basic review, example.",

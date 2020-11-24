@@ -8,7 +8,8 @@ type Wine struct {
 	gorm.Model
 	Name     string
 	ShortDes string
-	Winery   *Winery
+	WineryID uint
+	Reviews  []Review
 }
 
 type WineService interface {

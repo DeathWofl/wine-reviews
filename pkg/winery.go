@@ -9,6 +9,7 @@ type Winery struct {
 	Name     string
 	Location string
 	Stars    *int
+	Wines    []Wine
 }
 
 type WineryService interface {

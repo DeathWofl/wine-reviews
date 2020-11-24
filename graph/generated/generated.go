@@ -80,7 +80,7 @@ type ComplexityRoot struct {
 		ID       func(childComplexity int) int
 		Location func(childComplexity int) int
 		Name     func(childComplexity int) int
-		Starts   func(childComplexity int) int
+		Stars    func(childComplexity int) int
 	}
 }
 
@@ -276,12 +276,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Winery.Name(childComplexity), true
 
-	case "Winery.starts":
-		if e.complexity.Winery.Starts == nil {
+	case "Winery.stars":
+		if e.complexity.Winery.Stars == nil {
 			break
 		}
 
-		return e.complexity.Winery.Starts(childComplexity), true
+		return e.complexity.Winery.Stars(childComplexity), true
 
 	}
 	return 0, false
@@ -362,7 +362,7 @@ type Winery {
   id: ID!
   name: String!
   location: String!
-  starts: Int
+  stars: Int
 }
 
 type Review {
@@ -398,7 +398,7 @@ input NewUser {
 input NewWinery {
   name: String!
   location: String!
-  starts: Int
+  stars: Int
 }
 
 input NewReview {
@@ -1372,7 +1372,7 @@ func (ec *executionContext) _Winery_location(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Winery_starts(ctx context.Context, field graphql.CollectedField, obj *model.Winery) (ret graphql.Marshaler) {
+func (ec *executionContext) _Winery_stars(ctx context.Context, field graphql.CollectedField, obj *model.Winery) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1390,7 +1390,7 @@ func (ec *executionContext) _Winery_starts(ctx context.Context, field graphql.Co
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Starts, nil
+		return obj.Stars, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2641,11 +2641,11 @@ func (ec *executionContext) unmarshalInputNewWinery(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
-		case "starts":
+		case "stars":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("starts"))
-			it.Starts, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stars"))
+			it.Stars, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2910,8 +2910,8 @@ func (ec *executionContext) _Winery(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "starts":
-			out.Values[i] = ec._Winery_starts(ctx, field, obj)
+		case "stars":
+			out.Values[i] = ec._Winery_stars(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
