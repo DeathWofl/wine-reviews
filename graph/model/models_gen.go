@@ -8,11 +8,6 @@ type NewReview struct {
 	Text  string `json:"text"`
 }
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
-}
-
 type NewUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -25,35 +20,6 @@ type NewWine struct {
 }
 
 type NewWinery struct {
-	Name     string `json:"name"`
-	Location string `json:"location"`
-	Stars    *int   `json:"stars"`
-}
-
-type Review struct {
-	ID    string `json:"id"`
-	Wine  *Wine  `json:"wine"`
-	User  *User  `json:"user"`
-	Score int    `json:"score"`
-	Text  string `json:"text"`
-}
-
-type User struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-}
-
-type Wine struct {
-	ID       string  `json:"id"`
-	Name     string  `json:"name"`
-	ShortDes string  `json:"shortDes"`
-	Winery   *Winery `json:"Winery"`
-}
-
-type Winery struct {
-	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Location string `json:"location"`
 	Stars    *int   `json:"stars"`

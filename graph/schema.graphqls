@@ -18,10 +18,10 @@ type Winery {
 
 type Review {
   id: ID!
-  wine: Wine!
-  user: User!
   score: Int!
   text: String!
+  wine: Wine!
+  user: User!
 }
 
 type User {
@@ -29,6 +29,8 @@ type User {
   username: String!
   password: String!
   email: String!
+  
+  reviews: [Review!]!
 }
 
 type Query {
@@ -56,11 +58,6 @@ input NewReview {
   id: ID!
   score: Int!
   text: String!
-}
-
-input NewTodo {
-  text: String!
-  userId: String!
 }
 
 type Mutation {
