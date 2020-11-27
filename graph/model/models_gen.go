@@ -3,9 +3,11 @@
 package model
 
 type NewReview struct {
-	ID    int    `json:"id"`
-	Score int    `json:"score"`
-	Text  string `json:"text"`
+	ID     int    `json:"id"`
+	Score  int    `json:"score"`
+	Text   string `json:"text"`
+	WineID int    `json:"wineID"`
+	UserID int    `json:"UserID"`
 }
 
 type NewUser struct {
@@ -17,6 +19,7 @@ type NewUser struct {
 type NewWine struct {
 	Name     string `json:"name"`
 	ShortDes string `json:"shortDes"`
+	WineryID int    `json:"wineryID"`
 }
 
 type NewWinery struct {

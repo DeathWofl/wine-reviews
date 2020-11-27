@@ -19,7 +19,7 @@ func (s *WineService) Wine(id uint) (*model.Wine, error) {
 func (s *WineService) Wines() []*model.Wine {
 	var wines []*model.Wine
 
-	s.DB.Find(wines)
+	s.DB.Find(&wines)
 	return wines
 }
 

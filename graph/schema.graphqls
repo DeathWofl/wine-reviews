@@ -40,6 +40,7 @@ type Query {
 input NewWine {
  name: String!
  shortDes: String! 
+ wineryID: Int!
 }
 
 input NewUser {
@@ -58,6 +59,8 @@ input NewReview {
   id: ID!
   score: Int!
   text: String!
+  wineID: Int!
+  UserID: Int!
 }
 
 type Mutation {

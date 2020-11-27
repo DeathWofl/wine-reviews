@@ -7,8 +7,6 @@ import (
 
 func MigrateModels(db *gorm.DB) error {
 
-	db.Set("gorm:table_options", "ENGINE=InnoDB")
-
 	// drop table if exists
 	db.Migrator().DropTable(
 		model.Winery{},

@@ -19,7 +19,7 @@ func (s *UserService) User(id uint) (*model.User, error) {
 func (s *UserService) Users() []*model.User {
 	var users []*model.User
 
-	s.DB.Find(users)
+	s.DB.Find(&users)
 	return users
 }
 

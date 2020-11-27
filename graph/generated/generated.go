@@ -418,6 +418,7 @@ type Query {
 input NewWine {
  name: String!
  shortDes: String! 
+ wineryID: Int!
 }
 
 input NewUser {
@@ -436,6 +437,8 @@ input NewReview {
   id: ID!
   score: Int!
   text: String!
+  wineID: Int!
+  UserID: Int!
 }
 
 type Mutation {
@@ -2582,6 +2585,22 @@ func (ec *executionContext) unmarshalInputNewReview(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "wineID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wineID"))
+			it.WineID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "UserID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UserID"))
+			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2643,6 +2662,14 @@ func (ec *executionContext) unmarshalInputNewWine(ctx context.Context, obj inter
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shortDes"))
 			it.ShortDes, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "wineryID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wineryID"))
+			it.WineryID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
