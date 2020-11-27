@@ -1,10 +1,10 @@
 package model
 
 type Wine struct {
-	ID       string    `json:"id"`
+	ID       uint      `json:"id"`
 	Name     string    `json:"name"`
 	ShortDes string    `json:"shortdes"`
-	WineryID string    `json:"wineryid"`
+	WineryID uint      `json:"wineryid"`
 	Reviews  []*Review `json:"reviews"`
 }
 

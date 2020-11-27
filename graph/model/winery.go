@@ -1,7 +1,7 @@
 package model
 
 type Winery struct {
-	ID       string  `json:"id"`
+	ID       uint    `json:"id"`
 	Name     string  `json:"name"`
 	Location string  `json:"location"`
 	Stars    int     `json:"stars"`

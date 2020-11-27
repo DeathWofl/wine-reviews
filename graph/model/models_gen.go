@@ -3,7 +3,7 @@
 package model
 
 type NewReview struct {
-	ID    string `json:"id"`
+	ID    int    `json:"id"`
 	Score int    `json:"score"`
 	Text  string `json:"text"`
 }
