@@ -8,10 +8,10 @@ type Wine struct {
 	Reviews  []*Review `json:"reviews"`
 }
 
-// type WineService interface {
-// 	Wine(id string) (*Wine, error)
-// 	Wines() []*Wine
-// 	CreateWine(w *Wine) error
-// 	DeleteWine(id string) error
-// 	UpdateWine(id string, w *Wine) error
-// }
+type WineService interface {
+	Wine(id string) (*Wine, error)
+	Wines() []*Wine
+	CreateWine(w *Wine) error
+	DeleteWine(id string) error
+	UpdateWine(id string, w *Wine) error
+}

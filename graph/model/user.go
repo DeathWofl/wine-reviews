@@ -8,10 +8,10 @@ type User struct {
 	Reviews  []*Review `json:"reviews"`
 }
 
-// type UserService interface {
-// 	User(id string) (*User, error)
-// 	Users() []*User
-// 	CreateUser(w *User) error
-// 	DeleteUser(id string) error
-// 	UpdateUser(id string, w *User) error
-// }
+type UserService interface {
+	User(id string) (*User, error)
+	Users() []*User
+	CreateUser(w *User) error
+	DeleteUser(id string) error
+	UpdateUser(id string, w *User) error
+}
