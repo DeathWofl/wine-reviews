@@ -21,9 +21,9 @@ func (s *ReviewService) Reviews() ([]*model.Review, error) {
 	return reviews, nil
 }
 
-func (s *ReviewService) CreateReview(w *model.Review) error {
+func (s *ReviewService) CreateReview(w *model.Review) (*model.Review, error) {
 	s.DB.Create(w)
-	return nil
+	return w, nil
 }
 
 func (s *ReviewService) DeleteReview(id uint) error {

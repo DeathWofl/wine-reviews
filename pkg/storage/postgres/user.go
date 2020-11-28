@@ -10,23 +10,21 @@ type UserService struct {
 }
 
 func (s *UserService) User(id uint) (*model.User, error) {
-
 	var user *model.User
 	s.DB.First(user, id)
 	return user, nil
 }
 
-func (s *UserService) Users() []*model.User {
+func (s *UserService) Users() ([]*model.User, error) {
 	var users []*model.User
 
 	s.DB.Find(&users)
-	return users
+	return users, nil
 }
 
-func (s *UserService) CreateUser(w *model.User) error {
-
+func (s *UserService) CreateUser(w *model.User) (*model.User, error) {
 	s.DB.Create(w)
-	return nil
+	return w, nil
 }
 
 func (s *UserService) DeleteUser(id uint) error {

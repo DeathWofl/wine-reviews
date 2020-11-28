@@ -10,23 +10,20 @@ type WineService struct {
 }
 
 func (s *WineService) Wine(id uint) (*model.Wine, error) {
-
 	var wine *model.Wine
 	s.DB.First(wine, id)
 	return wine, nil
 }
 
-func (s *WineService) Wines() []*model.Wine {
+func (s *WineService) Wines() ([]*model.Wine, error) {
 	var wines []*model.Wine
-
 	s.DB.Find(&wines)
-	return wines
+	return wines, nil
 }
 
-func (s *WineService) CreateWine(w *model.Wine) error {
-
+func (s *WineService) CreateWine(w *model.Wine) (*model.Wine, error) {
 	s.DB.Create(w)
-	return nil
+	return w, nil
 }
 
 func (s *WineService) DeleteWine(id uint) error {

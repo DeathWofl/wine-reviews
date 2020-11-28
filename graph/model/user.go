@@ -10,8 +10,8 @@ type User struct {
 
 type UserService interface {
 	User(id string) (*User, error)
-	Users() []*User
-	CreateUser(w *User) error
+	Users() ([]*User, error)
+	CreateUser(w *User) (*User, error)
 	DeleteUser(id string) error
 	UpdateUser(id string, w *User) error
 }

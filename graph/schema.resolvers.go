@@ -5,26 +5,42 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/deathwofl/wine-reviews/graph/generated"
 	"github.com/deathwofl/wine-reviews/graph/model"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.UserService.CreateUser(&model.User{
+		Username: input.Username,
+		Password: input.Password,
+		Email:    input.Email,
+	})
 }
 
 func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWinery) (*model.Winery, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.WineryService.CreateWinery(&model.Winery{
+		Name:     input.Name,
+		Location: input.Location,
+		Stars:    *input.Stars,
+	})
 }
 
 func (r *mutationResolver) CreateReview(ctx context.Context, input model.NewReview) (*model.Review, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.ReviewService.CreateReview(&model.Review{
+		UserID: uint(input.UserID),
+		Score:  input.Score,
+		Text:   input.Text,
+		WineID: uint(input.WineID),
+	})
 }
 
 func (r *mutationResolver) CreateWine(ctx context.Context, input model.NewWine) (*model.Wine, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.WineService.CreateWine(&model.Wine{
+		Name:     input.Name,
+		WineryID: uint(input.WineryID),
+		ShortDes: input.ShortDes,
+	})
 }
 
 func (r *queryResolver) Reviews(ctx context.Context) ([]*model.Review, error) {

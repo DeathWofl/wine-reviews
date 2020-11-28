@@ -10,8 +10,8 @@ type Wine struct {
 
 type WineService interface {
 	Wine(id string) (*Wine, error)
-	Wines() []*Wine
-	CreateWine(w *Wine) error
+	Wines() ([]*Wine, error)
+	CreateWine(w *Wine) (*Wine, error)
 	DeleteWine(id string) error
 	UpdateWine(id string, w *Wine) error
 }

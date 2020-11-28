@@ -10,8 +10,8 @@ type Review struct {
 
 type ReviewService interface {
 	Review(id uint) (*Review, error)
-	Reviews() []*Review
-	CreateReview(w *Review) error
+	Reviews() ([]*Review, error)
+	CreateReview(w *Review) (*Review, error)
 	DeleteReview(id uint) error
 	UpdateReview(id uint, w *Review) error
 }
