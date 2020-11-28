@@ -11,9 +11,9 @@ type WineryService struct {
 
 func (s *WineryService) Winery(id uint) (*model.Winery, error) {
 
-	var winery *model.Winery
-	s.DB.First(winery, id)
-	return winery, nil
+	var winery model.Winery
+	s.DB.First(&winery, id)
+	return &winery, nil
 }
 
 func (s *WineryService) Winerys() ([]*model.Winery, error) {

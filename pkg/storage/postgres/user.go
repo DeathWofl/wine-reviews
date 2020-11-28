@@ -10,9 +10,9 @@ type UserService struct {
 }
 
 func (s *UserService) User(id uint) (*model.User, error) {
-	var user *model.User
-	s.DB.First(user, id)
-	return user, nil
+	var user model.User
+	s.DB.First(&user, id)
+	return &user, nil
 }
 
 func (s *UserService) Users() ([]*model.User, error) {
