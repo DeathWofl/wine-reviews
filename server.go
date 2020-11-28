@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +15,7 @@ import (
 	storage "github.com/deathwofl/wine-reviews/pkg/storage/postgres"
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,6 +25,11 @@ import (
 const defaultPort = "8080"
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	// create router
 	router := chi.NewRouter()
@@ -42,7 +49,13 @@ func main() {
 		},
 	)
 
-	dsn := "host=localhost user=postgres password=mysecretpassword dbname=winereviews port=5432 sslmode=disable"
+	DBHost := os.Getenv("DB_HOST")
+	DBUser := os.Getenv("DB_USER")
+	DBPort := os.Getenv("DB_PORT")
+	DBName := os.Getenv("DB_NAME")
+	DBPassword := os.Getenv("DB_PASSWORD")
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", DBHost, DBUser, DBPassword, DBName, DBPort)
 	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
