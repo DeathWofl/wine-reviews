@@ -22,7 +22,7 @@ func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWine
 	return r.WineryService.CreateWinery(&model.Winery{
 		Name:     input.Name,
 		Location: input.Location,
-		Stars:    *input.Stars,
+		Stars:    input.Stars,
 	})
 }
 
@@ -41,6 +41,40 @@ func (r *mutationResolver) CreateWine(ctx context.Context, input model.NewWine) 
 		WineryID: uint(input.WineryID),
 		ShortDes: input.ShortDes,
 	})
+}
+
+func (r *mutationResolver) UpdateWine(ctx context.Context, id int, input model.UpdateWine) (*model.Wine, error) {
+	return r.WineService.UpdateWine(uint(id), model.Wine{
+		Name:     input.Name,
+		ShortDes: input.ShortDes,
+	})
+}
+
+func (r *mutationResolver) UpdateWinery(ctx context.Context, id int, input model.UpdateWinery) (*model.Winery, error) {
+	return r.WineryService.UpdateWinery(uint(id), model.Winery{
+		Name:     input.Name,
+		Location: input.Location,
+		Stars:    *input.Stars,
+	})
+}
+
+func (r *mutationResolver) UpdateReview(ctx context.Context, id int, input model.UpdateReview) (*model.Review, error) {
+	return r.ReviewService.UpdateReview(uint(id), model.Review{
+		Score: input.Score,
+		Text:  input.Text,
+	})
+}
+
+func (r *mutationResolver) DeleteWine(ctx context.Context, id int) (bool, error) {
+	return true, r.WineService.DeleteWine(uint(id))
+}
+
+func (r *mutationResolver) DeleteWinery(ctx context.Context, id int) (bool, error) {
+	return true, r.WineryService.DeleteWinery(uint(id))
+}
+
+func (r *mutationResolver) DeleteReview(ctx context.Context, id int) (bool, error) {
+	return true, r.ReviewService.DeleteReview(uint(id))
 }
 
 func (r *queryResolver) Reviews(ctx context.Context) ([]*model.Review, error) {

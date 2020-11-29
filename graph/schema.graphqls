@@ -37,35 +37,59 @@ type Query {
   reviews: [Review!]!
 }
 
-input NewWine {
- name: String!
- shortDes: String!
- wineryID: Int!
-}
-
 input NewUser {
   username: String!
   password: String!
   email: String!
 }
 
+input NewWine {
+ name: String!
+ shortDes: String!
+ wineryID: Int!
+}
+
+input UpdateWine {
+  name: String!
+  shortDes: String!
+}
+
 input NewWinery {
+  name: String!
+  location: String!
+  stars: Int!
+}
+
+input UpdateWinery {
   name: String!
   location: String!
   stars: Int
 }
 
 input NewReview {
-  id: ID!
   score: Int!
   text: String!
   wineID: Int!
   UserID: Int!
 }
 
+input UpdateReview {
+  score: Int!
+  text: String!
+}
+
 type Mutation {
+  # Creates
   createUser(input: NewUser!): User!
   createWinery(input: NewWinery!): Winery!
   createReview(input: NewReview!): Review!
   createWine(input: NewWine!): Wine!
+  # Updates
+  updateWine(id: ID!, input: UpdateWine!):Wine!
+  updateWinery(id: ID!, input: UpdateWinery!):Winery!
+  updateReview(id: ID!, input: UpdateReview!):Review!
+  # Delete
+  deleteWine(id: ID!):Boolean!
+  deleteWinery(id: ID!):Boolean!
+  deleteReview(id: ID!):Boolean!
 }

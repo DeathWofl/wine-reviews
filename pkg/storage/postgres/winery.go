@@ -23,21 +23,18 @@ func (s *WineryService) Winerys() ([]*model.Winery, error) {
 }
 
 func (s *WineryService) CreateWinery(w *model.Winery) (*model.Winery, error) {
-
 	s.DB.Create(w)
 	return w, nil
 }
 
 func (s *WineryService) DeleteWinery(id uint) error {
-
 	s.DB.Delete(&model.Winery{}, id)
 	return nil
 }
 
-func (s *WineryService) UpdateWinery(id uint, w *model.Winery) error {
-	var winery *model.Winery
-	s.DB.First(winery, id)
-
-	s.DB.Model(winery).Updates(w)
-	return nil
+func (s *WineryService) UpdateWinery(id uint, w model.Winery) (*model.Winery, error) {
+	var winery model.Winery
+	s.DB.First(&winery, id)
+	s.DB.Model(&winery).Updates(w)
+	return &winery, nil
 }

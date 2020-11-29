@@ -32,10 +32,9 @@ func (s *WineService) DeleteWine(id uint) error {
 	return nil
 }
 
-func (s *WineService) UpdateWine(id uint, w *model.Wine) error {
-	var wine *model.Wine
-	s.DB.First(wine, id)
-
-	s.DB.Model(wine).Updates(w)
-	return nil
+func (s *WineService) UpdateWine(id uint, w model.Wine) (*model.Wine, error) {
+	var wine model.Wine
+	s.DB.First(&wine, id)
+	s.DB.Model(&wine).Updates(w)
+	return &wine, nil
 }

@@ -3,7 +3,6 @@
 package model
 
 type NewReview struct {
-	ID     int    `json:"id"`
 	Score  int    `json:"score"`
 	Text   string `json:"text"`
 	WineID int    `json:"wineID"`
@@ -23,6 +22,22 @@ type NewWine struct {
 }
 
 type NewWinery struct {
+	Name     string `json:"name"`
+	Location string `json:"location"`
+	Stars    int    `json:"stars"`
+}
+
+type UpdateReview struct {
+	Score int    `json:"score"`
+	Text  string `json:"text"`
+}
+
+type UpdateWine struct {
+	Name     string `json:"name"`
+	ShortDes string `json:"shortDes"`
+}
+
+type UpdateWinery struct {
 	Name     string `json:"name"`
 	Location string `json:"location"`
 	Stars    *int   `json:"stars"`

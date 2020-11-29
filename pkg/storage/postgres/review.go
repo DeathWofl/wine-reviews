@@ -31,10 +31,9 @@ func (s *ReviewService) DeleteReview(id uint) error {
 	return nil
 }
 
-func (s *ReviewService) UpdateReview(id uint, w *model.Review) error {
-	var review *model.Review
+func (s *ReviewService) UpdateReview(id uint, w model.Review) (*model.Review, error) {
+	var review model.Review
 	s.DB.First(&review, id)
-
-	s.DB.Model(review).Updates(w)
-	return nil
+	s.DB.Model(&review).Updates(w)
+	return &review, nil
 }
