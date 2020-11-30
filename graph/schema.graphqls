@@ -34,7 +34,12 @@ type User {
 }
 
 type Query {
+  wines(filter: WineFilter, limit: Int = 10): [Wine!]!
   reviews: [Review!]!
+}
+
+input WineFilter {
+  name: String
 }
 
 input NewUser {

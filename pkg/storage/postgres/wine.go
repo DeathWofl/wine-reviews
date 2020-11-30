@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"fmt"
+
 	"github.com/deathwofl/wine-reviews/graph/model"
 	"gorm.io/gorm"
 )
@@ -15,9 +17,20 @@ func (s *WineService) Wine(id uint) (*model.Wine, error) {
 	return &wine, nil
 }
 
-func (s *WineService) Wines() ([]*model.Wine, error) {
+func (s *WineService) Wines(filter *model.WineFilter, limit *int) ([]*model.Wine, error) {
 	var wines []*model.Wine
-	s.DB.Find(&wines)
+	fmt.Printf("Limit: %v\n", *limit)
+	query := s.DB
+	if filter != nil {
+		if limit != nil {
+			query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", *filter.Name)).Limit(*limit)
+		}
+		query = query.Where("name LIKE ?", fmt.Sprintf("%%%s%%", *filter.Name))
+	}
+	if limit != nil {
+		query = query.Limit(*limit)
+	}
+	query.Find(&wines)
 	return wines, nil
 }
 

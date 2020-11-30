@@ -77,6 +77,10 @@ func (r *mutationResolver) DeleteReview(ctx context.Context, id int) (bool, erro
 	return true, r.ReviewService.DeleteReview(uint(id))
 }
 
+func (r *queryResolver) Wines(ctx context.Context, filter *model.WineFilter, limit *int) ([]*model.Wine, error) {
+	return r.WineService.Wines(filter, limit)
+}
+
 func (r *queryResolver) Reviews(ctx context.Context) ([]*model.Review, error) {
 	return r.ReviewService.Reviews()
 }

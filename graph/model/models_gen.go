@@ -42,3 +42,7 @@ type UpdateWinery struct {
 	Location string `json:"location"`
 	Stars    *int   `json:"stars"`
 }
+
+type WineFilter struct {
+	Name *string `json:"name"`
+}
