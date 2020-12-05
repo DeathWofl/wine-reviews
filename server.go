@@ -12,8 +12,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/deathwofl/wine-reviews/graph"
 	"github.com/deathwofl/wine-reviews/graph/generated"
+	authmiddleware "github.com/deathwofl/wine-reviews/pkg/middleware"
 	storage "github.com/deathwofl/wine-reviews/pkg/storage/postgres"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
@@ -30,15 +32,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
-	// create router
-	router := chi.NewRouter()
-
-	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowCredentials: true,
-		Debug:            true,
-	}).Handler)
 
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
@@ -63,15 +56,29 @@ func main() {
 		panic(err)
 	}
 
+	userService := storage.UserService{DB: DB}
+
+	// create router
+	router := chi.NewRouter()
+
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		Debug:            true,
+	}).Handler)
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(authmiddleware.AuthMiddleware(userService))
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
-	// storage.MigrateModels(db)
+	// storage.MigrateModels(DB)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{
-		UserService:   storage.UserService{DB: DB},
+		UserService:   userService,
 		WineryService: storage.WineryService{DB: DB},
 		WineService:   storage.WineService{DB: DB},
 		ReviewService: storage.ReviewService{DB: DB},

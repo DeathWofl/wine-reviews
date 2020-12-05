@@ -1,7 +1,11 @@
 package model
 
+import (
+	"gorm.io/gorm"
+)
+
 type Review struct {
-	ID     uint   `json:"id"`
+	gorm.Model
 	Score  int    `json:"score"`
 	Text   string `json:"text"`
 	WineID uint   `json:"wineid"`

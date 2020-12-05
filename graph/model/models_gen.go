@@ -2,42 +2,59 @@
 
 package model
 
-type NewReview struct {
+import (
+	"time"
+)
+
+type AuthResponse struct {
+	AuthToken *AuthToken `json:"authToken"`
+	User      *User      `json:"user"`
+}
+
+type AuthToken struct {
+	Token     string    `json:"token"`
+	ExpiredAt time.Time `json:"expiredAt"`
+}
+
+type NewReviewInput struct {
 	Score  int    `json:"score"`
 	Text   string `json:"text"`
 	WineID int    `json:"wineID"`
 	UserID int    `json:"UserID"`
 }
 
-type NewUser struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-}
-
-type NewWine struct {
+type NewWineInput struct {
 	Name     string `json:"name"`
 	ShortDes string `json:"shortDes"`
 	WineryID int    `json:"wineryID"`
 }
 
-type NewWinery struct {
+type NewWineryInput struct {
 	Name     string `json:"name"`
 	Location string `json:"location"`
 	Stars    int    `json:"stars"`
 }
 
-type UpdateReview struct {
+type RegisterInput struct {
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	Confirmpassword string `json:"confirmpassword"`
+	Email           string `json:"email"`
+	FirstName       string `json:"firstName"`
+	LastName        string `json:"lastName"`
+}
+
+type UpdateReviewInput struct {
 	Score int    `json:"score"`
 	Text  string `json:"text"`
 }
 
-type UpdateWine struct {
+type UpdateWineInput struct {
 	Name     string `json:"name"`
 	ShortDes string `json:"shortDes"`
 }
 
-type UpdateWinery struct {
+type UpdateWineryInput struct {
 	Name     string `json:"name"`
 	Location string `json:"location"`
 	Stars    *int   `json:"stars"`

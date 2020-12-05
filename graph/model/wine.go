@@ -1,7 +1,11 @@
 package model
 
+import (
+	"gorm.io/gorm"
+)
+
 type Wine struct {
-	ID       uint      `json:"id"`
+	gorm.Model
 	Name     string    `json:"name"`
 	ShortDes string    `json:"shortdes"`
 	WineryID uint      `json:"wineryid"`
@@ -9,7 +13,7 @@ type Wine struct {
 }
 
 type WineService interface {
-	Wine(id string) (*Wine, error)
+	Wine(id uint) (*Wine, error)
 	Wines() ([]*Wine, error)
 	CreateWine(w *Wine) (*Wine, error)
 	DeleteWine(id string) error

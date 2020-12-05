@@ -5,20 +5,57 @@ package graph
 
 import (
 	"context"
+	"errors"
+	"log"
 
 	"github.com/deathwofl/wine-reviews/graph/generated"
 	"github.com/deathwofl/wine-reviews/graph/model"
+	"github.com/deathwofl/wine-reviews/pkg/middleware"
 )
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	return r.UserService.CreateUser(&model.User{
-		Username: input.Username,
-		Password: input.Password,
-		Email:    input.Email,
-	})
+func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.AuthResponse, error) {
+	confirmEmail, err := r.UserService.UserbyEmail(input.Email)
+	if confirmEmail.Email != "" {
+		return nil, errors.New("email already in use")
+	}
+
+	confirmUsername, err := r.UserService.UserbyUsername(input.Username)
+	if confirmUsername.Username != "" {
+		return nil, errors.New("username already in use")
+	}
+
+	user := &model.User{
+		Username:  input.Username,
+		Lastname:  input.LastName,
+		FirstName: input.FirstName,
+		Email:     input.Email,
+	}
+
+	err = middleware.HashPassword(input.Password, user)
+	if err != nil {
+		log.Printf("Error while hashing password: %v", err)
+		return nil, errors.New("Error hashing password")
+	}
+
+	_, err = r.UserService.CreateUser(user)
+	if err != nil {
+		log.Printf("Error while creating user: %v", err)
+		return nil, errors.New("Error creating user")
+	}
+
+	token, err := middleware.GenerateToken(user)
+	if err != nil {
+		log.Printf("Error while generating token: %v", err)
+		return nil, errors.New("Error generating token")
+	}
+
+	return &model.AuthResponse{
+		AuthToken: token,
+		User:      user,
+	}, nil
 }
 
-func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWinery) (*model.Winery, error) {
+func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWineryInput) (*model.Winery, error) {
 	return r.WineryService.CreateWinery(&model.Winery{
 		Name:     input.Name,
 		Location: input.Location,
@@ -26,7 +63,7 @@ func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWine
 	})
 }
 
-func (r *mutationResolver) CreateReview(ctx context.Context, input model.NewReview) (*model.Review, error) {
+func (r *mutationResolver) CreateReview(ctx context.Context, input model.NewReviewInput) (*model.Review, error) {
 	return r.ReviewService.CreateReview(&model.Review{
 		UserID: uint(input.UserID),
 		Score:  input.Score,
@@ -35,7 +72,7 @@ func (r *mutationResolver) CreateReview(ctx context.Context, input model.NewRevi
 	})
 }
 
-func (r *mutationResolver) CreateWine(ctx context.Context, input model.NewWine) (*model.Wine, error) {
+func (r *mutationResolver) CreateWine(ctx context.Context, input model.NewWineInput) (*model.Wine, error) {
 	return r.WineService.CreateWine(&model.Wine{
 		Name:     input.Name,
 		WineryID: uint(input.WineryID),
@@ -43,14 +80,14 @@ func (r *mutationResolver) CreateWine(ctx context.Context, input model.NewWine) 
 	})
 }
 
-func (r *mutationResolver) UpdateWine(ctx context.Context, id int, input model.UpdateWine) (*model.Wine, error) {
+func (r *mutationResolver) UpdateWine(ctx context.Context, id int, input model.UpdateWineInput) (*model.Wine, error) {
 	return r.WineService.UpdateWine(uint(id), model.Wine{
 		Name:     input.Name,
 		ShortDes: input.ShortDes,
 	})
 }
 
-func (r *mutationResolver) UpdateWinery(ctx context.Context, id int, input model.UpdateWinery) (*model.Winery, error) {
+func (r *mutationResolver) UpdateWinery(ctx context.Context, id int, input model.UpdateWineryInput) (*model.Winery, error) {
 	return r.WineryService.UpdateWinery(uint(id), model.Winery{
 		Name:     input.Name,
 		Location: input.Location,
@@ -58,7 +95,7 @@ func (r *mutationResolver) UpdateWinery(ctx context.Context, id int, input model
 	})
 }
 
-func (r *mutationResolver) UpdateReview(ctx context.Context, id int, input model.UpdateReview) (*model.Review, error) {
+func (r *mutationResolver) UpdateReview(ctx context.Context, id int, input model.UpdateReviewInput) (*model.Review, error) {
 	return r.ReviewService.UpdateReview(uint(id), model.Review{
 		Score: input.Score,
 		Text:  input.Text,

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -47,17 +48,27 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AuthResponse struct {
+		AuthToken func(childComplexity int) int
+		User      func(childComplexity int) int
+	}
+
+	AuthToken struct {
+		ExpiredAt func(childComplexity int) int
+		Token     func(childComplexity int) int
+	}
+
 	Mutation struct {
-		CreateReview func(childComplexity int, input model.NewReview) int
-		CreateUser   func(childComplexity int, input model.NewUser) int
-		CreateWine   func(childComplexity int, input model.NewWine) int
-		CreateWinery func(childComplexity int, input model.NewWinery) int
+		CreateReview func(childComplexity int, input model.NewReviewInput) int
+		CreateWine   func(childComplexity int, input model.NewWineInput) int
+		CreateWinery func(childComplexity int, input model.NewWineryInput) int
 		DeleteReview func(childComplexity int, id int) int
 		DeleteWine   func(childComplexity int, id int) int
 		DeleteWinery func(childComplexity int, id int) int
-		UpdateReview func(childComplexity int, id int, input model.UpdateReview) int
-		UpdateWine   func(childComplexity int, id int, input model.UpdateWine) int
-		UpdateWinery func(childComplexity int, id int, input model.UpdateWinery) int
+		Register     func(childComplexity int, input model.RegisterInput) int
+		UpdateReview func(childComplexity int, id int, input model.UpdateReviewInput) int
+		UpdateWine   func(childComplexity int, id int, input model.UpdateWineInput) int
+		UpdateWinery func(childComplexity int, id int, input model.UpdateWineryInput) int
 	}
 
 	Query struct {
@@ -74,11 +85,12 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Email    func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Password func(childComplexity int) int
-		Reviews  func(childComplexity int) int
-		Username func(childComplexity int) int
+		Email     func(childComplexity int) int
+		FirstName func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Lastname  func(childComplexity int) int
+		Reviews   func(childComplexity int) int
+		Username  func(childComplexity int) int
 	}
 
 	Wine struct {
@@ -97,13 +109,13 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateUser(ctx context.Context, input model.NewUser) (*model.User, error)
-	CreateWinery(ctx context.Context, input model.NewWinery) (*model.Winery, error)
-	CreateReview(ctx context.Context, input model.NewReview) (*model.Review, error)
-	CreateWine(ctx context.Context, input model.NewWine) (*model.Wine, error)
-	UpdateWine(ctx context.Context, id int, input model.UpdateWine) (*model.Wine, error)
-	UpdateWinery(ctx context.Context, id int, input model.UpdateWinery) (*model.Winery, error)
-	UpdateReview(ctx context.Context, id int, input model.UpdateReview) (*model.Review, error)
+	Register(ctx context.Context, input model.RegisterInput) (*model.AuthResponse, error)
+	CreateWinery(ctx context.Context, input model.NewWineryInput) (*model.Winery, error)
+	CreateReview(ctx context.Context, input model.NewReviewInput) (*model.Review, error)
+	CreateWine(ctx context.Context, input model.NewWineInput) (*model.Wine, error)
+	UpdateWine(ctx context.Context, id int, input model.UpdateWineInput) (*model.Wine, error)
+	UpdateWinery(ctx context.Context, id int, input model.UpdateWineryInput) (*model.Winery, error)
+	UpdateReview(ctx context.Context, id int, input model.UpdateReviewInput) (*model.Review, error)
 	DeleteWine(ctx context.Context, id int) (bool, error)
 	DeleteWinery(ctx context.Context, id int) (bool, error)
 	DeleteReview(ctx context.Context, id int) (bool, error)
@@ -145,6 +157,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "AuthResponse.authToken":
+		if e.complexity.AuthResponse.AuthToken == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.AuthToken(childComplexity), true
+
+	case "AuthResponse.user":
+		if e.complexity.AuthResponse.User == nil {
+			break
+		}
+
+		return e.complexity.AuthResponse.User(childComplexity), true
+
+	case "AuthToken.expiredAt":
+		if e.complexity.AuthToken.ExpiredAt == nil {
+			break
+		}
+
+		return e.complexity.AuthToken.ExpiredAt(childComplexity), true
+
+	case "AuthToken.token":
+		if e.complexity.AuthToken.Token == nil {
+			break
+		}
+
+		return e.complexity.AuthToken.Token(childComplexity), true
+
 	case "Mutation.createReview":
 		if e.complexity.Mutation.CreateReview == nil {
 			break
@@ -155,19 +195,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateReview(childComplexity, args["input"].(model.NewReview)), true
-
-	case "Mutation.createUser":
-		if e.complexity.Mutation.CreateUser == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.NewUser)), true
+		return e.complexity.Mutation.CreateReview(childComplexity, args["input"].(model.NewReviewInput)), true
 
 	case "Mutation.createWine":
 		if e.complexity.Mutation.CreateWine == nil {
@@ -179,7 +207,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateWine(childComplexity, args["input"].(model.NewWine)), true
+		return e.complexity.Mutation.CreateWine(childComplexity, args["input"].(model.NewWineInput)), true
 
 	case "Mutation.createWinery":
 		if e.complexity.Mutation.CreateWinery == nil {
@@ -191,7 +219,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateWinery(childComplexity, args["input"].(model.NewWinery)), true
+		return e.complexity.Mutation.CreateWinery(childComplexity, args["input"].(model.NewWineryInput)), true
 
 	case "Mutation.deleteReview":
 		if e.complexity.Mutation.DeleteReview == nil {
@@ -229,6 +257,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteWinery(childComplexity, args["id"].(int)), true
 
+	case "Mutation.register":
+		if e.complexity.Mutation.Register == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_register_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Register(childComplexity, args["input"].(model.RegisterInput)), true
+
 	case "Mutation.updateReview":
 		if e.complexity.Mutation.UpdateReview == nil {
 			break
@@ -239,7 +279,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateReview(childComplexity, args["id"].(int), args["input"].(model.UpdateReview)), true
+		return e.complexity.Mutation.UpdateReview(childComplexity, args["id"].(int), args["input"].(model.UpdateReviewInput)), true
 
 	case "Mutation.updateWine":
 		if e.complexity.Mutation.UpdateWine == nil {
@@ -251,7 +291,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateWine(childComplexity, args["id"].(int), args["input"].(model.UpdateWine)), true
+		return e.complexity.Mutation.UpdateWine(childComplexity, args["id"].(int), args["input"].(model.UpdateWineInput)), true
 
 	case "Mutation.updateWinery":
 		if e.complexity.Mutation.UpdateWinery == nil {
@@ -263,7 +303,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateWinery(childComplexity, args["id"].(int), args["input"].(model.UpdateWinery)), true
+		return e.complexity.Mutation.UpdateWinery(childComplexity, args["id"].(int), args["input"].(model.UpdateWineryInput)), true
 
 	case "Query.reviews":
 		if e.complexity.Query.Reviews == nil {
@@ -326,6 +366,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Email(childComplexity), true
 
+	case "User.firstname":
+		if e.complexity.User.FirstName == nil {
+			break
+		}
+
+		return e.complexity.User.FirstName(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -333,12 +380,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.ID(childComplexity), true
 
-	case "User.password":
-		if e.complexity.User.Password == nil {
+	case "User.lastname":
+		if e.complexity.User.Lastname == nil {
 			break
 		}
 
-		return e.complexity.User.Password(childComplexity), true
+		return e.complexity.User.Lastname(childComplexity), true
 
 	case "User.reviews":
 		if e.complexity.User.Reviews == nil {
@@ -474,9 +521,21 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
+	{Name: "graph/schema.graphqls", Input: `scalar Time
+
+# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
+
+type AuthToken {
+  token: String!
+  expiredAt: Time!
+}
+
+type AuthResponse {
+  authToken: AuthToken!
+  user: User!
+}
 
 type Wine {
   id: ID!
@@ -503,9 +562,9 @@ type Review {
 type User {
   id: ID!
   username: String!
-  password: String!
   email: String!
-  
+  firstname: String!
+  lastname: String!
   reviews: [Review!]!
 }
 
@@ -518,57 +577,61 @@ input WineFilter {
   name: String
 }
 
-input NewUser {
+input RegisterInput {
   username: String!
   password: String!
+  confirmpassword: String!
   email: String!
+  firstName: String!
+  lastName: String!
 }
 
-input NewWine {
+input NewWineInput {
  name: String!
  shortDes: String!
  wineryID: Int!
 }
 
-input UpdateWine {
+input UpdateWineInput {
   name: String!
   shortDes: String!
 }
 
-input NewWinery {
+input NewWineryInput {
   name: String!
   location: String!
   stars: Int!
 }
 
-input UpdateWinery {
+input UpdateWineryInput {
   name: String!
   location: String!
   stars: Int
 }
 
-input NewReview {
+input NewReviewInput {
   score: Int!
   text: String!
   wineID: Int!
   UserID: Int!
 }
 
-input UpdateReview {
+input UpdateReviewInput {
   score: Int!
   text: String!
 }
 
 type Mutation {
+  # Auth
+  register(input: RegisterInput!): AuthResponse!
   # Creates
-  createUser(input: NewUser!): User!
-  createWinery(input: NewWinery!): Winery!
-  createReview(input: NewReview!): Review!
-  createWine(input: NewWine!): Wine!
+  createWinery(input: NewWineryInput!): Winery!
+  createReview(input: NewReviewInput!): Review!
+  createWine(input: NewWineInput!): Wine!
   # Updates
-  updateWine(id: ID!, input: UpdateWine!):Wine!
-  updateWinery(id: ID!, input: UpdateWinery!):Winery!
-  updateReview(id: ID!, input: UpdateReview!):Review!
+  updateWine(id: ID!, input: UpdateWineInput!):Wine!
+  updateWinery(id: ID!, input: UpdateWineryInput!):Winery!
+  updateReview(id: ID!, input: UpdateReviewInput!):Review!
   # Delete
   deleteWine(id: ID!):Boolean!
   deleteWinery(id: ID!):Boolean!
@@ -584,25 +647,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createReview_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewReview
+	var arg0 model.NewReviewInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewReview2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewReview(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.NewUser
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewUser2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewUser(ctx, tmp)
+		arg0, err = ec.unmarshalNNewReviewInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewReviewInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -614,10 +662,10 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createWine_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewWine
+	var arg0 model.NewWineInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewWine2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWine(ctx, tmp)
+		arg0, err = ec.unmarshalNNewWineInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWineInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -629,10 +677,10 @@ func (ec *executionContext) field_Mutation_createWine_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_createWinery_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewWinery
+	var arg0 model.NewWineryInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewWinery2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWinery(ctx, tmp)
+		arg0, err = ec.unmarshalNNewWineryInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWineryInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -686,6 +734,21 @@ func (ec *executionContext) field_Mutation_deleteWinery_args(ctx context.Context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_register_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.RegisterInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNRegisterInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐRegisterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateReview_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -698,10 +761,10 @@ func (ec *executionContext) field_Mutation_updateReview_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
-	var arg1 model.UpdateReview
+	var arg1 model.UpdateReviewInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNUpdateReview2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateReview(ctx, tmp)
+		arg1, err = ec.unmarshalNUpdateReviewInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateReviewInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -722,10 +785,10 @@ func (ec *executionContext) field_Mutation_updateWine_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
-	var arg1 model.UpdateWine
+	var arg1 model.UpdateWineInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNUpdateWine2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWine(ctx, tmp)
+		arg1, err = ec.unmarshalNUpdateWineInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWineInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -746,10 +809,10 @@ func (ec *executionContext) field_Mutation_updateWinery_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
-	var arg1 model.UpdateWinery
+	var arg1 model.UpdateWineryInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNUpdateWinery2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWinery(ctx, tmp)
+		arg1, err = ec.unmarshalNUpdateWineryInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWineryInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -835,7 +898,147 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuthResponse_authToken(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AuthResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AuthToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AuthToken)
+	fc.Result = res
+	return ec.marshalNAuthToken2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthToken(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AuthResponse_user(ctx context.Context, field graphql.CollectedField, obj *model.AuthResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AuthResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AuthToken_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthToken) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AuthToken",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AuthToken_expiredAt(ctx context.Context, field graphql.CollectedField, obj *model.AuthToken) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AuthToken",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiredAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -852,7 +1055,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_createUser_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_register_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -860,7 +1063,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(model.NewUser))
+		return ec.resolvers.Mutation().Register(rctx, args["input"].(model.RegisterInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -872,9 +1075,9 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*model.AuthResponse)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createWinery(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -902,7 +1105,7 @@ func (ec *executionContext) _Mutation_createWinery(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateWinery(rctx, args["input"].(model.NewWinery))
+		return ec.resolvers.Mutation().CreateWinery(rctx, args["input"].(model.NewWineryInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -944,7 +1147,7 @@ func (ec *executionContext) _Mutation_createReview(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateReview(rctx, args["input"].(model.NewReview))
+		return ec.resolvers.Mutation().CreateReview(rctx, args["input"].(model.NewReviewInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -986,7 +1189,7 @@ func (ec *executionContext) _Mutation_createWine(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateWine(rctx, args["input"].(model.NewWine))
+		return ec.resolvers.Mutation().CreateWine(rctx, args["input"].(model.NewWineInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1028,7 +1231,7 @@ func (ec *executionContext) _Mutation_updateWine(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateWine(rctx, args["id"].(int), args["input"].(model.UpdateWine))
+		return ec.resolvers.Mutation().UpdateWine(rctx, args["id"].(int), args["input"].(model.UpdateWineInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1070,7 +1273,7 @@ func (ec *executionContext) _Mutation_updateWinery(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateWinery(rctx, args["id"].(int), args["input"].(model.UpdateWinery))
+		return ec.resolvers.Mutation().UpdateWinery(rctx, args["id"].(int), args["input"].(model.UpdateWineryInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1112,7 +1315,7 @@ func (ec *executionContext) _Mutation_updateReview(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateReview(rctx, args["id"].(int), args["input"].(model.UpdateReview))
+		return ec.resolvers.Mutation().UpdateReview(rctx, args["id"].(int), args["input"].(model.UpdateReviewInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1648,41 +1851,6 @@ func (ec *executionContext) _User_username(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_password(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Password, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1702,6 +1870,76 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Email, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_firstname(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_lastname(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Lastname, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3117,8 +3355,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputNewReview(ctx context.Context, obj interface{}) (model.NewReview, error) {
-	var it model.NewReview
+func (ec *executionContext) unmarshalInputNewReviewInput(ctx context.Context, obj interface{}) (model.NewReviewInput, error) {
+	var it model.NewReviewInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3161,44 +3399,8 @@ func (ec *executionContext) unmarshalInputNewReview(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj interface{}) (model.NewUser, error) {
-	var it model.NewUser
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "username":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "password":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "email":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputNewWine(ctx context.Context, obj interface{}) (model.NewWine, error) {
-	var it model.NewWine
+func (ec *executionContext) unmarshalInputNewWineInput(ctx context.Context, obj interface{}) (model.NewWineInput, error) {
+	var it model.NewWineInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3233,8 +3435,8 @@ func (ec *executionContext) unmarshalInputNewWine(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNewWinery(ctx context.Context, obj interface{}) (model.NewWinery, error) {
-	var it model.NewWinery
+func (ec *executionContext) unmarshalInputNewWineryInput(ctx context.Context, obj interface{}) (model.NewWineryInput, error) {
+	var it model.NewWineryInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3269,8 +3471,68 @@ func (ec *executionContext) unmarshalInputNewWinery(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateReview(ctx context.Context, obj interface{}) (model.UpdateReview, error) {
-	var it model.UpdateReview
+func (ec *executionContext) unmarshalInputRegisterInput(ctx context.Context, obj interface{}) (model.RegisterInput, error) {
+	var it model.RegisterInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "confirmpassword":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confirmpassword"))
+			it.Confirmpassword, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "firstName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
+			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lastName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
+			it.LastName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateReviewInput(ctx context.Context, obj interface{}) (model.UpdateReviewInput, error) {
+	var it model.UpdateReviewInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3297,8 +3559,8 @@ func (ec *executionContext) unmarshalInputUpdateReview(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateWine(ctx context.Context, obj interface{}) (model.UpdateWine, error) {
-	var it model.UpdateWine
+func (ec *executionContext) unmarshalInputUpdateWineInput(ctx context.Context, obj interface{}) (model.UpdateWineInput, error) {
+	var it model.UpdateWineInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3325,8 +3587,8 @@ func (ec *executionContext) unmarshalInputUpdateWine(ctx context.Context, obj in
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateWinery(ctx context.Context, obj interface{}) (model.UpdateWinery, error) {
-	var it model.UpdateWinery
+func (ec *executionContext) unmarshalInputUpdateWineryInput(ctx context.Context, obj interface{}) (model.UpdateWineryInput, error) {
+	var it model.UpdateWineryInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3389,6 +3651,70 @@ func (ec *executionContext) unmarshalInputWineFilter(ctx context.Context, obj in
 
 // region    **************************** object.gotpl ****************************
 
+var authResponseImplementors = []string{"AuthResponse"}
+
+func (ec *executionContext) _AuthResponse(ctx context.Context, sel ast.SelectionSet, obj *model.AuthResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthResponse")
+		case "authToken":
+			out.Values[i] = ec._AuthResponse_authToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user":
+			out.Values[i] = ec._AuthResponse_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var authTokenImplementors = []string{"AuthToken"}
+
+func (ec *executionContext) _AuthToken(ctx context.Context, sel ast.SelectionSet, obj *model.AuthToken) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authTokenImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthToken")
+		case "token":
+			out.Values[i] = ec._AuthToken_token(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "expiredAt":
+			out.Values[i] = ec._AuthToken_expiredAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3404,8 +3730,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createUser":
-			out.Values[i] = ec._Mutation_createUser(ctx, field)
+		case "register":
+			out.Values[i] = ec._Mutation_register(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3627,13 +3953,18 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "password":
-			out.Values[i] = ec._User_password(ctx, field, obj)
+		case "email":
+			out.Values[i] = ec._User_email(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "email":
-			out.Values[i] = ec._User_email(ctx, field, obj)
+		case "firstname":
+			out.Values[i] = ec._User_firstname(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "lastname":
+			out.Values[i] = ec._User_lastname(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
@@ -4006,6 +4337,30 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNAuthResponse2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v model.AuthResponse) graphql.Marshaler {
+	return ec._AuthResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthResponse2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v *model.AuthResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AuthResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAuthToken2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthToken(ctx context.Context, sel ast.SelectionSet, v *model.AuthToken) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AuthToken(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4051,23 +4406,23 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNNewReview2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewReview(ctx context.Context, v interface{}) (model.NewReview, error) {
-	res, err := ec.unmarshalInputNewReview(ctx, v)
+func (ec *executionContext) unmarshalNNewReviewInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewReviewInput(ctx context.Context, v interface{}) (model.NewReviewInput, error) {
+	res, err := ec.unmarshalInputNewReviewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
-	res, err := ec.unmarshalInputNewUser(ctx, v)
+func (ec *executionContext) unmarshalNNewWineInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWineInput(ctx context.Context, v interface{}) (model.NewWineInput, error) {
+	res, err := ec.unmarshalInputNewWineInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewWine2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWine(ctx context.Context, v interface{}) (model.NewWine, error) {
-	res, err := ec.unmarshalInputNewWine(ctx, v)
+func (ec *executionContext) unmarshalNNewWineryInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWineryInput(ctx context.Context, v interface{}) (model.NewWineryInput, error) {
+	res, err := ec.unmarshalInputNewWineryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewWinery2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewWinery(ctx context.Context, v interface{}) (model.NewWinery, error) {
-	res, err := ec.unmarshalInputNewWinery(ctx, v)
+func (ec *executionContext) unmarshalNRegisterInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐRegisterInput(ctx context.Context, v interface{}) (model.RegisterInput, error) {
+	res, err := ec.unmarshalInputRegisterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -4137,18 +4492,33 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNUpdateReview2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateReview(ctx context.Context, v interface{}) (model.UpdateReview, error) {
-	res, err := ec.unmarshalInputUpdateReview(ctx, v)
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateWine2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWine(ctx context.Context, v interface{}) (model.UpdateWine, error) {
-	res, err := ec.unmarshalInputUpdateWine(ctx, v)
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateReviewInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateReviewInput(ctx context.Context, v interface{}) (model.UpdateReviewInput, error) {
+	res, err := ec.unmarshalInputUpdateReviewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateWinery2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWinery(ctx context.Context, v interface{}) (model.UpdateWinery, error) {
-	res, err := ec.unmarshalInputUpdateWinery(ctx, v)
+func (ec *executionContext) unmarshalNUpdateWineInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWineInput(ctx context.Context, v interface{}) (model.UpdateWineInput, error) {
+	res, err := ec.unmarshalInputUpdateWineInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateWineryInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐUpdateWineryInput(ctx context.Context, v interface{}) (model.UpdateWineryInput, error) {
+	res, err := ec.unmarshalInputUpdateWineryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

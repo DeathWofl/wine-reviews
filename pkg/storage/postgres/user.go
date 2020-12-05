@@ -15,6 +15,18 @@ func (s *UserService) User(id uint) (*model.User, error) {
 	return &user, nil
 }
 
+func (s *UserService) UserbyEmail(email string) (*model.User, error) {
+	var user model.User
+	s.DB.Where(&model.User{Email: email}).First(&user)
+	return &user, nil
+}
+
+func (s *UserService) UserbyUsername(username string) (*model.User, error) {
+	var user model.User
+	s.DB.Where(&model.User{Username: username}).First(&user)
+	return &user, nil
+}
+
 func (s *UserService) Users() ([]*model.User, error) {
 	var users []*model.User
 

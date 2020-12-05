@@ -1,6 +1,18 @@
+scalar Time
+
 # GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
+
+type AuthToken {
+  token: String!
+  expiredAt: Time!
+}
+
+type AuthResponse {
+  authToken: AuthToken!
+  user: User!
+}
 
 type Wine {
   id: ID!
@@ -27,9 +39,9 @@ type Review {
 type User {
   id: ID!
   username: String!
-  password: String!
   email: String!
-  
+  firstname: String!
+  lastname: String!
   reviews: [Review!]!
 }
 
@@ -42,57 +54,61 @@ input WineFilter {
   name: String
 }
 
-input NewUser {
+input RegisterInput {
   username: String!
   password: String!
+  confirmpassword: String!
   email: String!
+  firstName: String!
+  lastName: String!
 }
 
-input NewWine {
+input NewWineInput {
  name: String!
  shortDes: String!
  wineryID: Int!
 }
 
-input UpdateWine {
+input UpdateWineInput {
   name: String!
   shortDes: String!
 }
 
-input NewWinery {
+input NewWineryInput {
   name: String!
   location: String!
   stars: Int!
 }
 
-input UpdateWinery {
+input UpdateWineryInput {
   name: String!
   location: String!
   stars: Int
 }
 
-input NewReview {
+input NewReviewInput {
   score: Int!
   text: String!
   wineID: Int!
   UserID: Int!
 }
 
-input UpdateReview {
+input UpdateReviewInput {
   score: Int!
   text: String!
 }
 
 type Mutation {
+  # Auth
+  register(input: RegisterInput!): AuthResponse!
   # Creates
-  createUser(input: NewUser!): User!
-  createWinery(input: NewWinery!): Winery!
-  createReview(input: NewReview!): Review!
-  createWine(input: NewWine!): Wine!
+  createWinery(input: NewWineryInput!): Winery!
+  createReview(input: NewReviewInput!): Review!
+  createWine(input: NewWineInput!): Wine!
   # Updates
-  updateWine(id: ID!, input: UpdateWine!):Wine!
-  updateWinery(id: ID!, input: UpdateWinery!):Winery!
-  updateReview(id: ID!, input: UpdateReview!):Review!
+  updateWine(id: ID!, input: UpdateWineInput!):Wine!
+  updateWinery(id: ID!, input: UpdateWineryInput!):Winery!
+  updateReview(id: ID!, input: UpdateReviewInput!):Review!
   # Delete
   deleteWine(id: ID!):Boolean!
   deleteWinery(id: ID!):Boolean!

@@ -1,7 +1,11 @@
 package model
 
+import (
+	"gorm.io/gorm"
+)
+
 type Winery struct {
-	ID       uint    `json:"id"`
+	gorm.Model
 	Name     string  `json:"name"`
 	Location string  `json:"location"`
 	Stars    int     `json:"stars"`
