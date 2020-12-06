@@ -65,6 +65,7 @@ type ComplexityRoot struct {
 		DeleteReview func(childComplexity int, id int) int
 		DeleteWine   func(childComplexity int, id int) int
 		DeleteWinery func(childComplexity int, id int) int
+		Login        func(childComplexity int, input model.LoginInput) int
 		Register     func(childComplexity int, input model.RegisterInput) int
 		UpdateReview func(childComplexity int, id int, input model.UpdateReviewInput) int
 		UpdateWine   func(childComplexity int, id int, input model.UpdateWineInput) int
@@ -110,6 +111,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Register(ctx context.Context, input model.RegisterInput) (*model.AuthResponse, error)
+	Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error)
 	CreateWinery(ctx context.Context, input model.NewWineryInput) (*model.Winery, error)
 	CreateReview(ctx context.Context, input model.NewReviewInput) (*model.Review, error)
 	CreateWine(ctx context.Context, input model.NewWineInput) (*model.Wine, error)
@@ -256,6 +258,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteWinery(childComplexity, args["id"].(int)), true
+
+	case "Mutation.login":
+		if e.complexity.Mutation.Login == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_login_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
 
 	case "Mutation.register":
 		if e.complexity.Mutation.Register == nil {
@@ -586,6 +600,11 @@ input RegisterInput {
   lastName: String!
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 input NewWineInput {
  name: String!
  shortDes: String!
@@ -613,7 +632,6 @@ input NewReviewInput {
   score: Int!
   text: String!
   wineID: Int!
-  UserID: Int!
 }
 
 input UpdateReviewInput {
@@ -624,6 +642,7 @@ input UpdateReviewInput {
 type Mutation {
   # Auth
   register(input: RegisterInput!): AuthResponse!
+  login(input: LoginInput!): AuthResponse
   # Creates
   createWinery(input: NewWineryInput!): Winery!
   createReview(input: NewReviewInput!): Review!
@@ -731,6 +750,21 @@ func (ec *executionContext) field_Mutation_deleteWinery_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.LoginInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1078,6 +1112,45 @@ func (ec *executionContext) _Mutation_register(ctx context.Context, field graphq
 	res := resTmp.(*model.AuthResponse)
 	fc.Result = res
 	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_login_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Login(rctx, args["input"].(model.LoginInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.AuthResponse)
+	fc.Result = res
+	return ec.marshalOAuthResponse2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createWinery(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3355,6 +3428,34 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (model.LoginInput, error) {
+	var it model.LoginInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewReviewInput(ctx context.Context, obj interface{}) (model.NewReviewInput, error) {
 	var it model.NewReviewInput
 	var asMap = obj.(map[string]interface{})
@@ -3382,14 +3483,6 @@ func (ec *executionContext) unmarshalInputNewReviewInput(ctx context.Context, ob
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wineID"))
 			it.WineID, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "UserID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UserID"))
-			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3735,6 +3828,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "login":
+			out.Values[i] = ec._Mutation_login(ctx, field)
 		case "createWinery":
 			out.Values[i] = ec._Mutation_createWinery(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -4406,6 +4501,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
+	res, err := ec.unmarshalInputLoginInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNewReviewInput2githubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐNewReviewInput(ctx context.Context, v interface{}) (model.NewReviewInput, error) {
 	res, err := ec.unmarshalInputNewReviewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4828,6 +4928,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOAuthResponse2ᚖgithubᚗcomᚋdeathwoflᚋwineᚑreviewsᚋgraphᚋmodelᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v *model.AuthResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AuthResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

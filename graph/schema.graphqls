@@ -63,6 +63,11 @@ input RegisterInput {
   lastName: String!
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 input NewWineInput {
  name: String!
  shortDes: String!
@@ -90,7 +95,6 @@ input NewReviewInput {
   score: Int!
   text: String!
   wineID: Int!
-  UserID: Int!
 }
 
 input UpdateReviewInput {
@@ -101,6 +105,7 @@ input UpdateReviewInput {
 type Mutation {
   # Auth
   register(input: RegisterInput!): AuthResponse!
+  login(input: LoginInput!): AuthResponse
   # Creates
   createWinery(input: NewWineryInput!): Winery!
   createReview(input: NewReviewInput!): Review!

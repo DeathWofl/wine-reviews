@@ -16,11 +16,15 @@ type AuthToken struct {
 	ExpiredAt time.Time `json:"expiredAt"`
 }
 
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type NewReviewInput struct {
 	Score  int    `json:"score"`
 	Text   string `json:"text"`
 	WineID int    `json:"wineID"`
-	UserID int    `json:"UserID"`
 }
 
 type NewWineInput struct {

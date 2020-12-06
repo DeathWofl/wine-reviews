@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -75,7 +76,7 @@ func parseToken(r *http.Request) (*jwt.Token, error) {
 	return jwtToken, errors.Wrap(err, "parseToken error: ")
 }
 
-func getCurrentUserFromContext(ctx context.Context) (*model.User, error) {
+func GetCurrentUserFromContext(ctx context.Context) (*model.User, error) {
 	if ctx.Value(CurrentUserKey) == nil {
 		return nil, errors.New("No user in context")
 	}
@@ -107,7 +108,7 @@ func GenerateToken(u *model.User) (*model.AuthToken, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		ExpiresAt: expiredAt.Unix(),
 		IssuedAt:  time.Now().Unix(),
-		Issuer:    "Wine reviws",
+		Issuer:    "Wine-reviews",
 	})
 
 	accessToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -119,4 +120,13 @@ func GenerateToken(u *model.User) (*model.AuthToken, error) {
 		Token:     accessToken,
 		ExpiredAt: expiredAt,
 	}, nil
+}
+
+func ComparePassword(password string, u *model.User) error {
+	passwordHashed := []byte(u.Password)
+	log.Println(passwordHashed)
+	log.Println(u.Password)
+	log.Println([]byte(password))
+	log.Println(password)
+	return bcrypt.CompareHashAndPassword(passwordHashed, []byte(password))
 }

@@ -55,6 +55,29 @@ func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInp
 	}, nil
 }
 
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
+	user, err := r.UserService.UserbyEmail(input.Email)
+	if err != nil {
+		return nil, errors.New("email or password are wrong")
+	}
+
+	err = middleware.ComparePassword(input.Password, user)
+	if err != nil {
+		log.Printf("Error while comparing password: %v", err)
+		return nil, errors.New("email or password are wrong 2")
+	}
+
+	token, err := middleware.GenerateToken(user)
+	if err != nil {
+		return nil, errors.New("something went wrong")
+	}
+
+	return &model.AuthResponse{
+		AuthToken: token,
+		User:      user,
+	}, nil
+}
+
 func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWineryInput) (*model.Winery, error) {
 	return r.WineryService.CreateWinery(&model.Winery{
 		Name:     input.Name,
@@ -64,8 +87,12 @@ func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWine
 }
 
 func (r *mutationResolver) CreateReview(ctx context.Context, input model.NewReviewInput) (*model.Review, error) {
+	currentUser, err := middleware.GetCurrentUserFromContext(ctx)
+	if err != nil {
+		return nil, errors.New("Unathorizated")
+	}
 	return r.ReviewService.CreateReview(&model.Review{
-		UserID: uint(input.UserID),
+		UserID: currentUser.ID,
 		Score:  input.Score,
 		Text:   input.Text,
 		WineID: uint(input.WineID),
