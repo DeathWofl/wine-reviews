@@ -2,9 +2,11 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,29 +22,37 @@ var CurrentUserKey = "currentUser"
 
 // AuthMiddleware function, authetication in middleware
 func AuthMiddleware(serv storage.UserService) func(http.Handler) http.Handler {
-	return func(handler http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token, err := parseToken(r)
 			if err != nil {
-				handler.ServeHTTP(w, r)
+				next.ServeHTTP(w, r)
 				return
 			}
 
 			claims, ok := token.Claims.(jwt.MapClaims)
 
 			if !ok || !token.Valid {
-				handler.ServeHTTP(w, r)
+				next.ServeHTTP(w, r)
 				return
 			}
 
-			user, err := serv.User(claims["jwi"].(uint))
+			id, err := strconv.ParseUint(claims["jti"].(string), 10, 64)
 			if err != nil {
-				handler.ServeHTTP(w, r)
+				next.ServeHTTP(w, r)
+				log.Println("Debugging: Something went wrong")
+				log.Printf("Debugging: %v", err)
+				return
+			}
+
+			user, err := serv.User(uint(id))
+			if err != nil {
+				next.ServeHTTP(w, r)
 				return
 			}
 
 			ctx := context.WithValue(r.Context(), CurrentUserKey, user)
-			handler.ServeHTTP(w, r.WithContext(ctx))
+			next.ServeHTTP(w, r.WithContext(ctx))
 
 		})
 	}
@@ -106,6 +116,7 @@ func GenerateToken(u *model.User) (*model.AuthToken, error) {
 	expiredAt := time.Now().Add(time.Hour * 72)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Id:        fmt.Sprint(u.ID),
 		ExpiresAt: expiredAt.Unix(),
 		IssuedAt:  time.Now().Unix(),
 		Issuer:    "Wine-reviews",
