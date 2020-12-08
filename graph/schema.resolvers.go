@@ -6,147 +6,73 @@ package graph
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/deathwofl/wine-reviews/graph/generated"
 	"github.com/deathwofl/wine-reviews/graph/model"
-	"github.com/deathwofl/wine-reviews/pkg/middleware"
 )
 
 func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.AuthResponse, error) {
-	confirmEmail, err := r.UserService.UserbyEmail(input.Email)
-	if confirmEmail.Email != "" {
-		return nil, errors.New("email already in use")
+	isValid := Validation(ctx, input)
+
+	if !isValid {
+		return nil, errors.New("input errors")
 	}
 
-	confirmUsername, err := r.UserService.UserbyUsername(input.Username)
-	if confirmUsername.Username != "" {
-		return nil, errors.New("username already in use")
-	}
-
-	user := &model.User{
-		Username:  input.Username,
-		Lastname:  input.LastName,
-		FirstName: input.FirstName,
-		Email:     input.Email,
-	}
-
-	err = middleware.HashPassword(input.Password, user)
-	if err != nil {
-		log.Printf("Error while hashing password: %v", err)
-		return nil, errors.New("Error hashing password")
-	}
-
-	_, err = r.UserService.CreateUser(user)
-	if err != nil {
-		log.Printf("Error while creating user: %v", err)
-		return nil, errors.New("Error creating user")
-	}
-
-	token, err := middleware.GenerateToken(user)
-	if err != nil {
-		log.Printf("Error while generating token: %v", err)
-		return nil, errors.New("Error generating token")
-	}
-
-	return &model.AuthResponse{
-		AuthToken: token,
-		User:      user,
-	}, nil
+	return r.Domain.Register(ctx, input)
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
-	user, err := r.UserService.UserbyEmail(input.Email)
-	if err != nil {
-		return nil, errors.New("email or password are wrong")
+	isValid := Validation(ctx, input)
+
+	if !isValid {
+		return nil, errors.New("input errors")
 	}
 
-	err = middleware.ComparePassword(input.Password, user)
-	if err != nil {
-		log.Printf("Error while comparing password: %v", err)
-		return nil, errors.New("email or password are wrong 2")
-	}
-
-	token, err := middleware.GenerateToken(user)
-	if err != nil {
-		return nil, errors.New("something went wrong")
-	}
-
-	return &model.AuthResponse{
-		AuthToken: token,
-		User:      user,
-	}, nil
+	return r.Domain.Login(ctx, input)
 }
 
 func (r *mutationResolver) CreateWinery(ctx context.Context, input model.NewWineryInput) (*model.Winery, error) {
-	return r.WineryService.CreateWinery(&model.Winery{
-		Name:     input.Name,
-		Location: input.Location,
-		Stars:    input.Stars,
-	})
+	return r.Domain.CreateWinery(ctx, input)
 }
 
 func (r *mutationResolver) CreateReview(ctx context.Context, input model.NewReviewInput) (*model.Review, error) {
-	currentUser, err := middleware.GetCurrentUserFromContext(ctx)
-	if err != nil {
-		return nil, errors.New("Unathorizated")
-	}
-	return r.ReviewService.CreateReview(&model.Review{
-		UserID: currentUser.ID,
-		Score:  input.Score,
-		Text:   input.Text,
-		WineID: uint(input.WineID),
-	})
+	return r.Domain.CreateReview(ctx, input)
 }
 
 func (r *mutationResolver) CreateWine(ctx context.Context, input model.NewWineInput) (*model.Wine, error) {
-	return r.WineService.CreateWine(&model.Wine{
-		Name:     input.Name,
-		WineryID: uint(input.WineryID),
-		ShortDes: input.ShortDes,
-	})
+	return r.Domain.CreateWine(ctx, input)
 }
 
 func (r *mutationResolver) UpdateWine(ctx context.Context, id int, input model.UpdateWineInput) (*model.Wine, error) {
-	return r.WineService.UpdateWine(uint(id), model.Wine{
-		Name:     input.Name,
-		ShortDes: input.ShortDes,
-	})
+	return r.Domain.UpdateWine(ctx, id, input)
 }
 
 func (r *mutationResolver) UpdateWinery(ctx context.Context, id int, input model.UpdateWineryInput) (*model.Winery, error) {
-	return r.WineryService.UpdateWinery(uint(id), model.Winery{
-		Name:     input.Name,
-		Location: input.Location,
-		Stars:    *input.Stars,
-	})
+	return r.Domain.UpdateWinery(ctx, id, input)
 }
 
 func (r *mutationResolver) UpdateReview(ctx context.Context, id int, input model.UpdateReviewInput) (*model.Review, error) {
-	return r.ReviewService.UpdateReview(uint(id), model.Review{
-		Score: input.Score,
-		Text:  input.Text,
-	})
+	return r.Domain.UpdateReview(ctx, id, input)
 }
 
 func (r *mutationResolver) DeleteWine(ctx context.Context, id int) (bool, error) {
-	return true, r.WineService.DeleteWine(uint(id))
+	return r.Domain.DeleteWine(ctx, id)
 }
 
 func (r *mutationResolver) DeleteWinery(ctx context.Context, id int) (bool, error) {
-	return true, r.WineryService.DeleteWinery(uint(id))
+	return r.Domain.DeleteWinery(ctx, id)
 }
 
 func (r *mutationResolver) DeleteReview(ctx context.Context, id int) (bool, error) {
-	return true, r.ReviewService.DeleteReview(uint(id))
+	return r.Domain.DeleteReview(ctx, id)
 }
 
 func (r *queryResolver) Wines(ctx context.Context, filter *model.WineFilter, limit *int) ([]*model.Wine, error) {
-	return r.WineService.Wines(filter, limit)
+	return r.Domain.Wines(ctx, filter, limit)
 }
 
 func (r *queryResolver) Reviews(ctx context.Context) ([]*model.Review, error) {
-	return r.ReviewService.Reviews()
+	return r.Domain.Reviews(ctx)
 }
 
 func (r *reviewResolver) ID(ctx context.Context, obj *model.Review) (int, error) {
@@ -154,11 +80,11 @@ func (r *reviewResolver) ID(ctx context.Context, obj *model.Review) (int, error)
 }
 
 func (r *reviewResolver) Wine(ctx context.Context, obj *model.Review) (*model.Wine, error) {
-	return r.WineService.Wine(obj.WineID)
+	return r.Domain.Wine(ctx, obj)
 }
 
 func (r *reviewResolver) User(ctx context.Context, obj *model.Review) (*model.User, error) {
-	return r.UserService.User(obj.UserID)
+	return r.Domain.User(ctx, obj)
 }
 
 func (r *userResolver) ID(ctx context.Context, obj *model.User) (int, error) {
@@ -170,7 +96,7 @@ func (r *wineResolver) ID(ctx context.Context, obj *model.Wine) (int, error) {
 }
 
 func (r *wineResolver) Winery(ctx context.Context, obj *model.Wine) (*model.Winery, error) {
-	return r.WineryService.Winery(obj.WineryID)
+	return r.Domain.Winery(ctx, obj)
 }
 
 func (r *wineryResolver) ID(ctx context.Context, obj *model.Winery) (int, error) {
