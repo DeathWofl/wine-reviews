@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"github.com/deathwofl/wine-reviews/pkg/storage/postgres"
+	"github.com/deathwofl/wine-reviews/pkg/domain"
 )
 
 //go:generate go run github.com/99designs/gqlgen
@@ -11,8 +11,5 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	UserService   postgres.UserService
-	ReviewService postgres.ReviewService
-	WineService   postgres.WineService
-	WineryService postgres.WineryService
+	Domain *domain.Domain
 }

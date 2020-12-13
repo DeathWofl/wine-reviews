@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/deathwofl/wine-reviews/graph"
 	"github.com/deathwofl/wine-reviews/graph/generated"
+	"github.com/deathwofl/wine-reviews/pkg/domain"
 	authmiddleware "github.com/deathwofl/wine-reviews/pkg/middleware"
 	storage "github.com/deathwofl/wine-reviews/pkg/storage/postgres"
 	"github.com/go-chi/chi"
@@ -74,12 +75,14 @@ func main() {
 	}
 
 	// storage.MigrateModels(DB)
-
+	d := domain.New(
+		storage.WineService{DB: DB},
+		storage.WineryService{DB: DB},
+		userService,
+		storage.ReviewService{DB: DB},
+	)
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{
-		UserService:   userService,
-		WineryService: storage.WineryService{DB: DB},
-		WineService:   storage.WineService{DB: DB},
-		ReviewService: storage.ReviewService{DB: DB},
+		Domain: d,
 	}}))
 
 	// srv.AddTransport(&transport.Websocket{
